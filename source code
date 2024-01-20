@@ -1,0 +1,243 @@
+#include <iostream>
+#include <conio.h>
+#include <locale.h>
+#include <string.h>
+#include <iomanip>
+#include <fstream>   
+#include <stdlib.h>
+#include <cstring> 
+
+using namespace std;
+
+struct Urun {
+    char ad[50];
+    float fiyat;
+    float stok;
+};
+
+void urunEkle();
+void UrunListeleme();
+void UrunAra();
+void SatilanUrun();
+
+Urun urun;
+
+int main() {
+	setlocale(LC_ALL,"Turkish");
+	
+	
+	char anamenu;
+    char secim;
+    do
+	{
+		system("cls");
+		
+    cout << "|------- Kasap Dükkanı Stok Takip Sistemi ------|" << endl;
+    cout << "| 1. Ürün Ekle                                  |" << endl;
+    cout << "| 2. Ürünleri Listele                           |" << endl;
+    cout << "| 3. Ürün Ara                                   |" << endl;
+    cout << "| 4. Satılan Ürün                               |" << endl;
+    cout << "| 5. Çıkış                                      |" << endl;
+    cout << "|-----------------------------------------------|" << endl;
+    cout << "Lütfen seçiminizi yapın: ";
+    cin >> secim;
+    
+    switch(secim)
+    {
+    	case '1':
+    		urunEkle();
+    		break;
+    	case '2':
+    		UrunListeleme();
+    		break;
+    	case '3':
+    		UrunAra();
+    		break;
+    	case '4':
+    		SatilanUrun();
+    		break;
+    	case '5':
+    		cout << "Programdan çıkılıyor. Hoşça kal!" << endl;
+    		break;
+    	default:
+    		cout << "geçersiz bir seçim yaptınız." << endl;
+	}
+	
+
+	if(secim!='5')
+	{
+    cout << "Anamenuye Donmek icin: a basin cikmak için: c e basın" <<endl ; 
+	anamenu=getche();
+    }
+    else
+    return 0;
+    
+    }while(anamenu=='a');
+    return 0;
+}
+
+void urunEkle()
+{
+	ofstream yaz("stok.dat",ios::binary | ios::app);
+	char secim;
+	
+	do
+	{
+	cout << "eklemek istediğiniz ürün: " ;
+	cin.ignore(); 
+    cin.getline(urun.ad, sizeof(urun.ad));
+	cout << "ürün fiyatını girin(tl): ";
+    cin  >> urun.fiyat;
+	cout << "ürünün miktarını girin gram cinsinden: ";
+	cin  >> urun.stok;
+	
+	yaz.write((char*)&urun,sizeof(urun));
+	
+	cout << "başka kayıt eklemek ister misiniz (e/h): ";
+	secim=getche();
+	cout << endl;
+	
+	}while(secim=='e' || secim=='E');
+	
+	yaz.close();
+}
+
+void UrunListeleme()
+{
+	ifstream oku("stok.dat",ios::binary | ios::app);
+	
+	oku.seekg(0,ios::end);
+	int kayitlar=oku.tellg()/sizeof(urun);
+	cout << "Toplam urun sayısı:"<< kayitlar << endl;
+	cout << endl;
+	
+	if(kayitlar>0)
+	{
+		for(int i=0; i<kayitlar;i++)
+		{
+			oku.seekg(i*sizeof(urun));
+			oku.read((char*)&urun, sizeof(urun));	
+		
+			cout << i+1 << ". ürün bilgileri"  << endl;
+			cout << "Ürün Adi: "    << urun.ad <<endl ;
+			cout << "ürün fiyatı(tl): " << urun.fiyat <<endl ;
+			cout << "ürün miktarı(gram): "<< urun.stok <<endl ;
+			cout << endl;
+		}		
+	}
+	else
+	{
+		cout << "Kayıt bulunamadı...." << endl;
+	}
+	oku.close();
+}
+
+void UrunAra()
+{
+	ifstream oku("stok.dat",ios::binary | ios::app);
+	
+	oku.seekg(0,ios::end);
+	int kayitlarr=oku.tellg()/sizeof(urun);
+	cout << "Kayıtlı ürün sayısı: "<< kayitlarr << endl;
+	
+	char UrunAdi[50];
+	cout << "aramak istediğiniz ürün adını girin: ";
+	cin.ignore();
+	cin.getline(UrunAdi, sizeof(UrunAdi));
+	
+	if(kayitlarr>0)
+	{
+		bool bulundu=false;
+		for(int i=0;i<kayitlarr;i++)
+		{
+			oku.seekg(i*sizeof(urun));
+			oku.read((char*)&urun,sizeof(urun));
+			
+			if(strcmp(urun.ad,UrunAdi)==0)
+			{
+				cout << "------Ürün bilgileri-----" << endl;
+				cout << "Aradığınız Ürünün fiyatı(tl) : " << urun.fiyat <<  endl;
+				cout << "Aradığınız ürünün miktarı(gram): " << urun.stok <<endl;
+				bulundu=true;
+			}
+		}
+		if(!bulundu)
+			cout << "aradığınız ürün bulunamadı..." << endl;
+	}
+	else
+	{
+		cout << "Kayıt bulunamadı..." << endl;
+	}
+	oku.close();
+}
+
+void SatilanUrun()
+{
+	char UrunAdi[50];
+	char secim= ' ';
+	bool var= false;
+	
+	ifstream oku("stok.dat",ios::binary | ios::app);
+	oku.seekg(0,ios::end);
+	
+	int kayitsayisi=oku.tellg()/sizeof(urun);
+	
+	cout << "satışı yapılan ürünün adını giriniz: ";
+	cin.ignore();
+	cin.getline(UrunAdi,sizeof(UrunAdi));
+	
+	for(int i=0;i<kayitsayisi;i++)
+	{
+		oku.seekg(i*sizeof(urun));
+		oku.read((char*)&urun, sizeof(urun));
+		
+		if(strcmp(urun.ad,UrunAdi)==0)
+		{
+			cout << endl;
+			cout << "ürün fiyatı:  " << urun.fiyat << endl;
+			cout << "ürün miktarı: " << urun.stok  << endl;
+			cout << "\nSatılan ürün bu mu (e/h)?: ";
+			secim=getche();
+			if(secim== 'h' || secim == 'H')
+			{
+				Urun y_urun;
+				ofstream y_dosya("yedek.dat",ios::binary | ios::app);
+				strcpy(y_urun.ad,urun.ad);
+				y_urun.fiyat =urun.fiyat;
+				y_urun.stok = urun.stok;
+				
+				y_dosya.write((char*)&y_urun,sizeof(y_urun));
+				y_dosya.close();
+			}
+			if(secim=='e' || secim=='E')
+			{
+				var=true;
+			}
+		}
+		else
+		{
+			Urun y_urun;
+				ofstream y_dosya("yedek.dat",ios::binary | ios::app);
+				strcpy(y_urun.ad,urun.ad);
+				y_urun.fiyat =urun.fiyat;
+				y_urun.stok = urun.stok;
+				
+				y_dosya.write((char*)&y_urun,sizeof(y_urun));
+				y_dosya.close();
+		}
+	}
+	oku.close();
+	
+	if(var)
+    {
+               remove("stok.dat");
+               rename("yedek.dat","stok.dat");
+               cout<<"\n Kayit Silindi"<<endl;
+    }
+    else
+    {
+               remove("yedek.dat");
+               cout<<"\n Kayit Bulunamadi"<<endl;                  
+    }
+	
+}
