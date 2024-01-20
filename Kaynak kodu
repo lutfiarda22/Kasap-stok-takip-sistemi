@@ -208,6 +208,8 @@ void SatilanUrun()
 				
 				y_dosya.write((char*)&y_urun,sizeof(y_urun));
 				y_dosya.close();
+				string a,anamenu;
+				anamenu=a;
 			}
 			if(secim=='e' || secim=='E')
 			{
@@ -232,7 +234,7 @@ void SatilanUrun()
     {
                remove("stok.dat");
                rename("yedek.dat","stok.dat");
-               cout<<"\n Kayit Silindi"<<endl;
+               cout<<"\n Ürün stoktan kaldırıldı."<<endl;
     }
     else
     {
